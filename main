@@ -10,3 +10,38 @@ data_train = sk.load_files(corpus_path + "\\training", description=None, categor
                                 shuffle=True, encoding=None, decode_error='strict', random_state=42)
 data_test = sk.load_files(corpus_path + "\\test", description=None, categories=None, load_content=True,
                                 shuffle=True, encoding=None, decode_error='strict', random_state=42)
+print('data loaded')
+
+
+print("Part 1 - clean the text")
+from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
+from nltk.tokenize import word_tokenize
+from collections import defaultdict
+term_per_category = defaultdict(lambda: defaultdict(int))
+stop_words = set(stopwords.words('english'))
+def clean_text(data):
+    for fileB, target in zip(data.data, data.target):
+        #------------TO LOWER CASE-------------
+        file = fileB.decode("utf-8").lower()
+        #------------TOKENIZE-------------
+        word_tokens = word_tokenize(file)
+        #------------REMOVE STOP WORDS-------------
+        filtered_sentence = [w for w in word_tokens if not w in stop_words]
+        filtered_sentence = []
+        for w in word_tokens:
+            if w not in stop_words:
+                    filtered_sentence.append(w)
+        #------------STEMMING-------------
+        ps = PorterStemmer()
+        stemmedFile = []
+        for word in filtered_sentence:
+            for w in word.split(" "):
+                stem = ps.stem(w)
+                stemmedFile.append(stem)
+                term_per_category[target][word] += 1
+        #------------PUT FILE BACK-------------
+        fileB = ' '.join(stemmedFile)
+clean_text(data_train)
+clean_text(data_test)
+print("**********FINISHED CLEANING THE TEXT***************")

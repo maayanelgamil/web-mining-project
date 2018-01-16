@@ -1,0 +1,12 @@
+import sklearn.datasets as sk
+from time import time
+from sklearn.linear_model import SGDClassifier
+from sklearn.linear_model import Perceptron
+from sklearn.naive_bayes import MultinomialNB
+from sklearn import metrics
+
+corpus_path = 'E:\corpus'
+data_train = sk.load_files(corpus_path + "\\training", description=None, categories=None, load_content=True,
+                                shuffle=True, encoding=None, decode_error='strict', random_state=42)
+data_test = sk.load_files(corpus_path + "\\test", description=None, categories=None, load_content=True,
+                                shuffle=True, encoding=None, decode_error='strict', random_state=42)

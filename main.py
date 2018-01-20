@@ -133,6 +133,29 @@ pred = nb.predict(x_test)
 print(nb.score(x_test, y_test))
 
 
-
 #######************************   Nuiral network ******************************############################
+import os
+os.environ["KERAS_BACKEND"] = "theano"
+import numpy
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.layers import LSTM
+from keras.layers.embeddings import Embedding
+from keras.preprocessing import sequence
+# fix random seed for reproducibility
+numpy.random.seed(7)
 
+# truncate and pad input sequences
+max_review_length = 500
+x_train = sequence.pad_sequences(x_train, maxlen=max_review_length)
+x_test = sequence.pad_sequences(x_test, maxlen=max_review_length)
+
+#create the model
+embedding_vecor_length = 32
+model = Sequential()
+model.add(Embedding(top_words, embedding_vecor_length, input_length=max_review_length))
+model.add(LSTM(100))
+model.add(Dense(1, activation='sigmoid'))
+model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+print(model.summary())
+model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs=3, batch_size=128)

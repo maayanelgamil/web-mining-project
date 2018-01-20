@@ -1,10 +1,18 @@
-import pandas as pd;
-import re
 import pandas as pd
-import numpy as np
 import re
-import string
 import matplotlib.pyplot as plt
+import os
+import numpy
+
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.preprocessing import LabelEncoder
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.layers import LSTM
+from keras.layers.embeddings import Embedding
+from keras.preprocessing import sequence
 
 # Define regex consts
 emoticons_str = r"""
@@ -19,8 +27,8 @@ regex_str = [
     r'(?:@[\w_]+)',  # @-mentions
     r"(?:\#+[\w_]+[\w\'_\-]*[\w_]+)",  # hash-tags
     r'http[s]?://(?:[a-z]|[0-9]|[$-_@.&amp;+]|[!*\(\),]|(?:%[0-9a-f][0-9a-f]))+',  # URLs
-    r'(?:(?:\d+,?)+(?:\.?\d+)?)', # numbers
-    r"(?:[a-z][a-z'\-_]+[a-z])", # words with - and '
+    r'(?:(?:\d+,?)+(?:\.?\d+)?)',  # numbers
+    r"(?:[a-z][a-z'\-_]+[a-z])",  # words with - and '
     r'(?:[\w_]+)',  # other words
     r'(?:\S)',  # anything else
 ]
@@ -99,19 +107,12 @@ def clean_q1(corpus_path):
     # plt.show()
 
 
-clean_q1('E:\gender-classifier.csv')
+clean_q1('assets/gender-classifier.csv')
 
 ##################################################################################################################
-    #######************************   QUESTION 2 ******************************############################
+#######************************   QUESTION 2 ******************************############################
 ##################################################################################################################
 # the Naive Bayes model
-
-
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.model_selection import train_test_split
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.preprocessing import LabelEncoder
-from sklearn import metrics
 
 vectorizer = CountVectorizer()
 x = vectorizer.fit_transform(data['text_clean'])
@@ -129,16 +130,10 @@ pred = nb.predict(x_test)
 
 print(nb.score(x_test, y_test))
 
-
 #######************************   Nuiral network ******************************############################
-import os
+
 os.environ["KERAS_BACKEND"] = "theano"
-import numpy
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.layers import LSTM
-from keras.layers.embeddings import Embedding
-from keras.preprocessing import sequence
+
 # fix random seed for reproducibility
 numpy.random.seed(7)
 
@@ -147,7 +142,7 @@ max_review_length = 500
 x_train = sequence.pad_sequences(x_train, maxlen=max_review_length)
 x_test = sequence.pad_sequences(x_test, maxlen=max_review_length)
 
-#create the model
+# create the model
 embedding_vecor_length = 32
 model = Sequential()
 model.add(Embedding(top_words, embedding_vecor_length, input_length=max_review_length))

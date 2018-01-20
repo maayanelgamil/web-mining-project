@@ -6,12 +6,6 @@ import re
 import string
 import matplotlib.pyplot as plt
 
-corpus_path = 'E:\gender-classifier.csv'
-data = pd.read_csv(corpus_path)
-
-print('data loaded')
-print("Part 1 - clean the text")
-
 # Define regex consts
 emoticons_str = r"""
     (?:
@@ -61,48 +55,51 @@ def clean_stopwords(text):
     return no_stopwords_tokens;
 
 
-row_it = data.iterrows()
-test_clean = []
-# Iterate the data
-for i, line in row_it:
-    no_stopwords_tokens = []
-    tokens = preprocess(line['text'])
-    no_stopwords_tokens = clean_stopwords(tokens)
-    test_clean.append(' '.join(no_stopwords_tokens))
-data['text_clean'] = test_clean
+def clean_q1(corpus_path):
+    global data, no_stopwords_tokens
+    data = pd.read_csv(corpus_path)
+    print('data loaded')
+    print("Part 1 - clean the text")
+    row_it = data.iterrows()
+    test_clean = []
+    # Iterate the data
+    for i, line in row_it:
+        no_stopwords_tokens = []
+        tokens = preprocess(line['text'])
+        no_stopwords_tokens = clean_stopwords(tokens)
+        test_clean.append(' '.join(no_stopwords_tokens))
+    data['text_clean'] = test_clean
+    # Explore gender distributation count
+    print(data.gender.value_counts())
+    # Explore distributation of words per gender
+    Male = data[data['gender'] == 'male']
+    Female = data[data['gender'] == 'female']
+    Brand = data[data['gender'] == 'brand']
+    Male_Words = pd.Series(' '.join(Male['text_clean'].astype(str)).lower().split(" ")).value_counts()[:20]
+    Female_Words = pd.Series(' '.join(Female['text_clean'].astype(str)).lower().split(" ")).value_counts()[:20]
+    Brand_words = pd.Series(' '.join(Brand['text_clean'].astype(str)).lower().split(" ")).value_counts()[:10]
+    All_words = pd.Series(' '.join(data['text_clean'].astype(str)).lower().split(" ")).value_counts()[:10]
+    print("**********FINISHED CLEANING THE TEXT***************")
+    print(Female_Words)
+    ts = Female_Words.plot(kind='bar', stacked=True, colormap='OrRd')
+    ts.plot()
+    plt.show()
+    print(Male_Words)
+    ts = Male_Words.plot(kind='bar', stacked=True, colormap='plasma')
+    ts.plot()
+    # plt.show()
+    print(Brand_words)
+    ts = Brand_words.plot(kind='bar', stacked=True, colormap='Paired')
+    ts.plot()
+    # plt.show()
+    print("**ALL WORDS**")
+    print(All_words)
+    ts = All_words.plot(kind='bar', stacked=True, colormap='Paired')
+    ts.plot()
+    # plt.show()
 
-# Explore gender distributation count
-print(data.gender.value_counts())
 
-# Explore distributation of words per gender
-Male = data[data['gender'] == 'male']
-Female = data[data['gender'] == 'female']
-Brand = data[data['gender'] == 'brand']
-Male_Words = pd.Series(' '.join(Male['text_clean'].astype(str)).lower().split(" ")).value_counts()[:20]
-Female_Words = pd.Series(' '.join(Female['text_clean'].astype(str)).lower().split(" ")).value_counts()[:20]
-Brand_words = pd.Series(' '.join(Brand['text_clean'].astype(str)).lower().split(" ")).value_counts()[:10]
-All_words = pd.Series(' '.join(data['text_clean'].astype(str)).lower().split(" ")).value_counts()[:10]
-
-
-print("**********FINISHED CLEANING THE TEXT***************")
-
-print(Female_Words)
-ts = Female_Words.plot(kind='bar', stacked=True, colormap='OrRd')
-ts.plot()
-plt.show()
-print(Male_Words)
-ts = Male_Words.plot(kind='bar', stacked=True, colormap='plasma')
-ts.plot()
-#plt.show()
-print(Brand_words)
-ts = Brand_words.plot(kind='bar', stacked=True, colormap='Paired')
-ts.plot()
-#plt.show()
-print("**ALL WORDS**")
-print(All_words)
-ts = All_words.plot(kind='bar', stacked=True, colormap='Paired')
-ts.plot()
-#plt.show()
+clean_q1('E:\gender-classifier.csv')
 
 ##################################################################################################################
     #######************************   QUESTION 2 ******************************############################

@@ -2,17 +2,14 @@ import pandas as pd
 import re
 import matplotlib.pyplot as plt
 import os
-import numpy
 
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.model_selection import train_test_split
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.preprocessing import LabelEncoder
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.layers import LSTM
-from keras.layers.embeddings import Embedding
-from keras.preprocessing import sequence
+
+##################################################################################################################
+#######************************   QUESTION 1 ******************************############################
+##################################################################################################################
+
+os.environ["KERAS_BACKEND"] = "theano"
+import numpy
 
 # Define regex consts
 emoticons_str = r"""
@@ -55,21 +52,24 @@ def clean_stopwords(text):
     # Create stop word dictionary
     punctuation = list(string.punctuation)
     stop = stopwords.words('english') + punctuation + ['rt', 'via']
-    no_stopwords_tokens
+    no_stopwords_tokens = []
+
     # Remove stop words
     for token in text:
         if token not in stop:
             no_stopwords_tokens.append(token)
-    return no_stopwords_tokens;
+
+    return no_stopwords_tokens
 
 
 def clean_q1(corpus_path):
-    global data, no_stopwords_tokens
+    global data
     data = pd.read_csv(corpus_path)
     print('data loaded')
     print("Part 1 - clean the text")
     row_it = data.iterrows()
     test_clean = []
+
     # Iterate the data
     for i, line in row_it:
         no_stopwords_tokens = []
@@ -77,8 +77,10 @@ def clean_q1(corpus_path):
         no_stopwords_tokens = clean_stopwords(tokens)
         test_clean.append(' '.join(no_stopwords_tokens))
     data['text_clean'] = test_clean
+
     # Explore gender distributation count
     print(data.gender.value_counts())
+
     # Explore distributation of words per gender
     Male = data[data['gender'] == 'male']
     Female = data[data['gender'] == 'female']
@@ -87,6 +89,7 @@ def clean_q1(corpus_path):
     Female_Words = pd.Series(' '.join(Female['text_clean'].astype(str)).lower().split(" ")).value_counts()[:20]
     Brand_words = pd.Series(' '.join(Brand['text_clean'].astype(str)).lower().split(" ")).value_counts()[:10]
     All_words = pd.Series(' '.join(data['text_clean'].astype(str)).lower().split(" ")).value_counts()[:10]
+
     print("**********FINISHED CLEANING THE TEXT***************")
     print(Female_Words)
     ts = Female_Words.plot(kind='bar', stacked=True, colormap='OrRd')
@@ -109,10 +112,22 @@ def clean_q1(corpus_path):
 
 clean_q1('assets/gender-classifier.csv')
 
+# For question 3 (Tweets)
+# clean_q1('assets/tweetsNoReTweets.csv')
+
 ##################################################################################################################
 #######************************   QUESTION 2 ******************************############################
 ##################################################################################################################
 # the Naive Bayes model
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.preprocessing import LabelEncoder
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.layers import LSTM
+from keras.layers.embeddings import Embedding
+from keras.preprocessing import sequence
 
 vectorizer = CountVectorizer()
 x = vectorizer.fit_transform(data['text_clean'])
@@ -130,9 +145,7 @@ pred = nb.predict(x_test)
 
 print(nb.score(x_test, y_test))
 
-#######************************   Nuiral network ******************************############################
-
-os.environ["KERAS_BACKEND"] = "theano"
+#######************************  Neural network ******************************#######
 
 # fix random seed for reproducibility
 numpy.random.seed(7)
@@ -151,3 +164,15 @@ model.add(Dense(1, activation='sigmoid'))
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 print(model.summary())
 model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs=3, batch_size=128)
+
+##################################################################################################################
+#######************************   QUESTION 3 ******************************############################
+##################################################################################################################
+
+# Using the tweets csv file received by Q3.py
+
+clean_q1('assets/tweetsNoReTweets.csv')
+
+##################################################################################################################
+#######************************   QUESTION 4 ******************************############################
+##################################################################################################################

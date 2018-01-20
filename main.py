@@ -6,7 +6,7 @@ import re
 import string
 import matplotlib.pyplot as plt
 
-corpus_path = 'D:\gender-classifier-DFE-791531.csv'
+corpus_path = 'E:\gender-classifier.csv'
 data = pd.read_csv(corpus_path)
 
 print('data loaded')
@@ -83,6 +83,9 @@ Female_Words = pd.Series(' '.join(Female['text_clean'].astype(str)).lower().spli
 Brand_words = pd.Series(' '.join(Brand['text_clean'].astype(str)).lower().split(" ")).value_counts()[:10]
 All_words = pd.Series(' '.join(data['text_clean'].astype(str)).lower().split(" ")).value_counts()[:10]
 
+
+print("**********FINISHED CLEANING THE TEXT***************")
+
 print(Female_Words)
 ts = Female_Words.plot(kind='bar', stacked=True, colormap='OrRd')
 ts.plot()
@@ -130,4 +133,6 @@ pred = nb.predict(x_test)
 print(nb.score(x_test, y_test))
 
 
-print("**********FINISHED CLEANING THE TEXT***************")
+
+#######************************   Nuiral network ******************************############################
+

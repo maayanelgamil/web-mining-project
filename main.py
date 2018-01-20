@@ -63,9 +63,9 @@ def clean_stopwords(text):
     return no_stopwords_tokens
 
 
-def clean_q1(corpus_path, added_stop_words):
+def clean_q1(corpus_path, added_stop_words=None):
     # Add stop words if needed
-    if len(added_stop_words) > 0:
+    if added_stop_words is not None:
         stop.extend(added_stop_words)
 
     global data
@@ -99,7 +99,7 @@ def clean_q1(corpus_path, added_stop_words):
     print(Female_Words)
     ts = Female_Words.plot(kind='bar', stacked=True, colormap='OrRd')
     ts.plot()
-    plt.show()
+    # plt.show()
     print(Male_Words)
     ts = Male_Words.plot(kind='bar', stacked=True, colormap='plasma')
     ts.plot()
@@ -115,7 +115,7 @@ def clean_q1(corpus_path, added_stop_words):
     # plt.show()
 
 
-clean_q1('assets/gender-classifier.csv', [])
+clean_q1('assets/gender-classifier.csv')
 
 ##################################################################################################################
 #######************************   QUESTION 2 ******************************############################
@@ -145,27 +145,33 @@ nb.fit(x_train, y_train)
 
 pred = nb.predict(x_test)
 
-print(nb.score(x_test, y_test))
+print("Navie Baies score:", nb.score(x_test, y_test))
 
 #######************************  Neural network ******************************#######
 
-# fix random seed for reproducibility
-numpy.random.seed(7)
 
-# truncate and pad input sequences
-max_review_length = 500
-x_train = sequence.pad_sequences(x_train, maxlen=max_review_length)
-x_test = sequence.pad_sequences(x_test, maxlen=max_review_length)
+model = Sequential()
+model.add(Dense(32, activation='relu', input_dim=len(x_train.data)))
+model.add(Dense(len(x_train.data), activation='softmax'))
+model.compile(optimizer='rmsprop',
+              loss='categorical_crossentropy',
+              metrics=['accuracy'])
+model.summary()
+
+model.fit(x_train.data, y_train.data, nb_epoch=100, batch_size=10)
+
+# fix random seed for reproducibility
+# numpy.random.seed(7)
 
 # create the model
-embedding_vecor_length = 32
-model = Sequential()
-model.add(Embedding(top_words, embedding_vecor_length, input_length=max_review_length))
-model.add(LSTM(100))
-model.add(Dense(1, activation='sigmoid'))
-model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-print(model.summary())
-model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs=3, batch_size=128)
+# embedding_vector_length = 32
+# model = Sequential()
+# model.add(Embedding(stop, embedding_vector_length, input_length=10))
+# model.add(LSTM(100))
+# model.add(Dense(1, activation='sigmoid'))
+# model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+# print(model.summary())
+# model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs=3, batch_size=128)
 
 ##################################################################################################################
 #######************************   QUESTION 3 ******************************############################
@@ -174,9 +180,8 @@ model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs=3, batch_si
 # Using the tweets csv file received by Q3.py
 
 # For question 3 (Tweets)
-added_stop_words = ['#metoo', '#women', '#ladies', '#beard', '#men', '#bros',
-                    'metoo', 'women', 'ladies', 'beard', 'men', 'bros']
-clean_q1('assets/tweetsNoReTweets.csv', added_stop_words)
+# q3_stop_words = ['#metoo', '#women', '#ladies', '#beard', '#men', '#bros', 'metoo', 'women', 'ladies', 'beard', 'men', 'bros']
+# clean_q1('assets/tweetsNoReTweets.csv', added_stop_words=q3_stop_words)
 
 ##################################################################################################################
 #######************************   QUESTION 4 ******************************############################

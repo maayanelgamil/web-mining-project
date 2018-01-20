@@ -2,14 +2,16 @@ import pandas as pd
 import re
 import matplotlib.pyplot as plt
 import os
+import string
+from nltk.corpus import stopwords
 
+os.environ["KERAS_BACKEND"] = "theano"
+import numpy
 
 ##################################################################################################################
 #######************************   QUESTION 1 ******************************############################
 ##################################################################################################################
 
-os.environ["KERAS_BACKEND"] = "theano"
-import numpy
 
 # Define regex consts
 emoticons_str = r"""
@@ -30,6 +32,10 @@ regex_str = [
     r'(?:\S)',  # anything else
 ]
 
+# Create stop word dictionary
+punctuation = list(string.punctuation)
+stop = stopwords.words('english') + punctuation + ['rt', 'via', 'amp', 'get', 'gt', '1', '10', 'click']
+
 tokens_re = re.compile(r'(' + '|'.join(regex_str) + ')', re.VERBOSE | re.IGNORECASE)
 emoticon_re = re.compile(r'^' + emoticons_str + '$', re.VERBOSE | re.IGNORECASE)
 
@@ -47,11 +53,6 @@ def preprocess(s):
 
 
 def clean_stopwords(text):
-    from nltk.corpus import stopwords
-    import string
-    # Create stop word dictionary
-    punctuation = list(string.punctuation)
-    stop = stopwords.words('english') + punctuation + ['rt', 'via']
     no_stopwords_tokens = []
 
     # Remove stop words
@@ -62,11 +63,15 @@ def clean_stopwords(text):
     return no_stopwords_tokens
 
 
-def clean_q1(corpus_path):
+def clean_q1(corpus_path, added_stop_words):
+    # Add stop words if needed
+    if len(added_stop_words) > 0:
+        stop.extend(added_stop_words)
+
     global data
     data = pd.read_csv(corpus_path)
     print('data loaded')
-    print("Part 1 - clean the text")
+    print("clean the text")
     row_it = data.iterrows()
     test_clean = []
 
@@ -110,15 +115,11 @@ def clean_q1(corpus_path):
     # plt.show()
 
 
-clean_q1('assets/gender-classifier.csv')
-
-# For question 3 (Tweets)
-# clean_q1('assets/tweetsNoReTweets.csv')
+clean_q1('assets/gender-classifier.csv', [])
 
 ##################################################################################################################
 #######************************   QUESTION 2 ******************************############################
 ##################################################################################################################
-# the Naive Bayes model
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer
@@ -129,6 +130,7 @@ from keras.layers import LSTM
 from keras.layers.embeddings import Embedding
 from keras.preprocessing import sequence
 
+# the Naive Bayes model
 vectorizer = CountVectorizer()
 x = vectorizer.fit_transform(data['text_clean'])
 
@@ -171,7 +173,10 @@ model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs=3, batch_si
 
 # Using the tweets csv file received by Q3.py
 
-clean_q1('assets/tweetsNoReTweets.csv')
+# For question 3 (Tweets)
+added_stop_words = ['#metoo', '#women', '#ladies', '#beard', '#men', '#bros',
+                    'metoo', 'women', 'ladies', 'beard', 'men', 'bros']
+clean_q1('assets/tweetsNoReTweets.csv', added_stop_words)
 
 ##################################################################################################################
 #######************************   QUESTION 4 ******************************############################

@@ -1,9 +1,11 @@
+from __future__ import print_function
+
+
 import pandas as pd
 import re
 import os
 import string
 from nltk.corpus import stopwords
-
 os.environ["KERAS_BACKEND"] = "theano"
 import numpy
 
@@ -127,10 +129,10 @@ clean_q1('assets/gender-classifier.csv')
 ##################################################################################################################
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.model_selection import train_test_split
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.preprocessing import LabelEncoder
 from keras.models import Sequential
-from keras.layers import Dense
+from keras.layers import Dense, Convolution1D
 from keras.layers import LSTM
 from keras.layers.embeddings import Embedding
 from keras.preprocessing import sequence
@@ -154,129 +156,53 @@ print("Navie Baies score:", nb.score(x_test, y_test))
 
 #######************************  Neural Network ******************************#######
 
-from keras.preprocessing.text import Tokenizer
-import keras.preprocessing.text as kpt
+import numpy as np
+import keras
+from keras.datasets import reuters
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation
-import keras
-import json
+from keras.preprocessing.text import Tokenizer
 
-train_x = data["text_clean"]
-train_y = data["gender"]
+max_words = 1000
+batch_size = 32
+epochs = 5
 
-train_x = train_x.as_matrix(columns=None)
-train_y = train_y.as_matrix(columns=None)
+num_classes = 2
+print(num_classes, 'classes')
 
-for idx, val in enumerate(train_y):
-    if val == 'male':
-        train_y[idx] = 0
-    else:
-        train_y[idx] = 1
-
-numpy.set_printoptions(threshold='nan')
-
-# only work with the 3000 most popular words found in our dataset
-max_words = 3000
-
-# create a new Tokenizer
+print('Vectorizing sequence data...')
 tokenizer = Tokenizer(num_words=max_words)
-# feed our tweets to the Tokenizer
-tokenizer.fit_on_texts(train_x)
+print('x_train shape:', x_train.shape)
+print('x_test shape:', x_test.shape)
 
-# Tokenizers come with a convenient list of words and IDs
-dictionary = tokenizer.word_index
-# Let's save this out so we can use it later
-with open('dictionary.json', 'w') as dictionary_file:
-    json.dump(dictionary, dictionary_file)
+print('Convert class vector to binary class matrix '
+      '(for use with categorical_crossentropy)')
+y_train = keras.utils.to_categorical(y_train, num_classes)
+y_test = keras.utils.to_categorical(y_test, num_classes)
+print('y_train shape:', y_train.shape)
+print('y_test shape:', y_test.shape)
 
-ignored = []
-
-
-def convert_text_to_index_array(text):
-    # one really important thing that `text_to_word_sequence` does
-    # is make all texts the same length -- in this case, the length
-    # of the longest text in the set.
-    # return [dictionary[word] for word in kpt.text_to_word_sequence(text)]
-    words = kpt.text_to_word_sequence(text)
-    wordIndices = []
-    for word in words:
-        if word in dictionary:
-            wordIndices.append(dictionary[word])
-        else:
-            if word not in ignored:
-                ignored.append(word)
-    return wordIndices
-
-
-allWordIndices = []
-# for each tweet, change each token to its ID in the Tokenizer's word_index
-for text in train_x:
-    wordIndices = convert_text_to_index_array(text)
-    allWordIndices.append(wordIndices)
-
-# now we have a list of all tweets converted to index arrays.
-# cast as an array for future usage.
-allWordIndices = numpy.asarray(allWordIndices)
-
-# create one-hot matrices out of the indexed tweets
-train_x = tokenizer.sequences_to_matrix(allWordIndices, mode='binary')
-# treat the labels as categories
-train_y = keras.utils.to_categorical(train_y, 2)
-
-
-# Create the model
-
+print('Building model...')
 model = Sequential()
-model.add(Dense(512, input_shape=(max_words,), activation='relu'))
+model.add(Dense(512, input_shape=(29382,)))
+model.add(Activation('relu'))
 model.add(Dropout(0.5))
-model.add(Dense(256, activation='sigmoid'))
-model.add(Dropout(0.5))
-model.add(Dense(2, activation='softmax'))
+model.add(Dense(num_classes))
+model.add(Activation('softmax'))
 
-# Compile the model
 model.compile(loss='categorical_crossentropy',
-  optimizer='adam',
-  metrics=['accuracy'])
+              optimizer='adam',
+              metrics=['accuracy'])
 
-# Fit the model
-model.fit(train_x, train_y,
-  batch_size=32,
-  epochs=5,
-  verbose=1,
-  validation_split=0.1,
-  shuffle=True)
-
-# Save the model
-
-model_json = model.to_json()
-with open('model.json', 'w') as json_file:
-    json_file.write(model_json)
-
-model.save_weights('model.h5')
-
-from keras.models import model_from_json
-
-# read in your saved model structure
-json_file = open('model.json', 'r')
-loaded_model_json = json_file.read()
-json_file.close()
-# and create a model from that
-model = model_from_json(loaded_model_json)
-# and weight your nodes with your saved values
-model.load_weights('model.h5')
-
-labels = ['male', 'female']
-
-evalSentence = "Alon is the egg of all people"
-
-# format your input for the neural net
-testArr = convert_text_to_index_array(evalSentence)
-input = tokenizer.sequences_to_matrix([testArr], mode='binary')
-# predict which bucket your input belongs in
-pred = model.predict(input)
-# and print it for the humons
-print("%s sentiment; %f%% confidence" % (labels[numpy.argmax(pred)], pred[0][numpy.argmax(pred)] * 100))
-
+history = model.fit(x_train, y_train,
+                    batch_size=batch_size,
+                    epochs=epochs,
+                    verbose=1,
+                    validation_split=0.1)
+score = model.evaluate(x_test, y_test,
+                       batch_size=batch_size, verbose=1)
+print('Test score:', score[0])
+print('Test accuracy:', score[1])
 ##################################################################################################################
 #######************************   QUESTION 3 ******************************############################
 ##################################################################################################################

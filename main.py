@@ -182,11 +182,11 @@ knn_parameters = {'vect__max_df': (0.3,0.4,0.5,0.6,0.7, 0.75, 1.0),
                'clf__weights': ['uniform', 'distance']}
 
 knn_gs = GridSearchCV(knn_clf, knn_parameters)
-knn_gs = knn_gs.fit(x_train.data, x_train.target)
+knn_gs = knn_gs.fit(pipeline_x_train, pipeline_y_train)
 print('Best score: ',knn_gs.best_score_)
 print('Best params: ',knn_gs.best_params_)
-#######************************  Neural Network ******************************#######
 
+#######************************  Neural Network ******************************#######
 import numpy as np
 import keras
 from keras.datasets import reuters

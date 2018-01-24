@@ -110,7 +110,7 @@ def ClassifyWithNeuralNetwork(x_train, x_test, y_train, y_test):
 
     print('Building model...')
     model = Sequential()
-    model.add(Dense(512, input_shape=(29397,)))
+    model.add(Dense(512, input_shape=(47203,)))
     model.add(Activation('relu'))
     model.add(Dropout(0.5))
     model.add(Dense(num_classes))

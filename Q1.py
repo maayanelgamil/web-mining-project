@@ -64,6 +64,10 @@ def clean_q1(corpus_path, added_stop_words=None):
     data.drop(data[data.gender == 'brand'].index, inplace=True)
     data.drop(data[data.gender == 'unknown'].index, inplace=True)
     data.drop(data[pd.isnull(data.gender)].index, inplace=True)
+    # drop all low condifent rows - in twitter conffidence doesn't exists
+    # This will improve our training to be more accurate
+    if('gender:confidence' in data):
+        data.drop(data[data['gender:confidence'] < 0.65].index, inplace=True)
 
     print('data loaded')
     print("clean the text")

@@ -22,13 +22,13 @@ from keras.datasets import reuters
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation
 from keras.preprocessing.text import Tokenizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy
 
-vectorizer = CountVectorizer()
-
+vectorizer = TfidfVectorizer()
+stop = stopwords.words('english') + punctuation + ['rt', 'via', 'amp', 'get', 'gt', '1', '10', 'click']
 def vectorizeAndGetTestAndTrain(data):
     # the Naive Bayes model
-
     x = vectorizer.fit_transform(data['text_clean'])
     encoder = LabelEncoder()
     y = encoder.fit_transform(data['gender'])
@@ -131,3 +131,26 @@ def ClassifyWithNeuralNetwork():
     print(score)
     print('Test score:', score[0])
     print('Test accuracy:', score[1])
+
+def predcitWithBestResult(clean_data, test, added_stop_words = []):
+    # the Naive Bayes model
+    x = vectorizer.fit_transform(clean_data['text_clean'])
+    encoder = LabelEncoder()
+    y = encoder.fit_transform(clean_data['gender'])
+
+    # split into train and test sets
+    x_train, y_train, x_test, y_test train_test_split(x, y, test_size=0.1)
+    vectorizer = TfidfVectorizer(ngram_range=(1, 1), max_df=0.3, stop_words=stop + added_stop_words )
+    clf = MultinomialNB(fit_prior=False, alpha=1)
+
+    improved_features_train = vectorizer.fit_transform(x_train)
+
+    encoder = LabelEncoder()
+    test_data = data.drop(test['gender'].index, inplace=False)
+    improved_features_test = vectorizer.transform(test_data)
+
+    clf.fit(improved_features_train, y_train)
+    pred = clf.predict(test_data)
+
+    score = metrics.accuracy_score(test['gender'], pred)
+    result_display.append(['Naive Bayes', 'Improved', score])

@@ -16,7 +16,7 @@ x_train, x_test, y_train, y_test = Q2.vectorizeAndGetTestAndTrain(clean_data)
 Q2.ClassifyUsingNaiveBayes(x_train, x_test, y_train, y_test)
 Q2.ClassifyUsingKNN(x_train, x_test, y_train, y_test)
 
-#Q2.TuneNaiveBayes(clean_data)
+Q2.TuneNaiveBayes(clean_data)
 Q2.TuneKNN(clean_data)
 
 print("Finished tuning Naive bayes")
@@ -25,7 +25,10 @@ print("Finished tuning Naive bayes")
 # Using the tweets csv file received by Q3.py
 #For question 3 (Tweets)
 q3_stop_words = ['#metoo', '#women', '#ladies', '#beard', '#men', '#bros', 'metoo', 'women', 'ladies', 'beard', 'men', 'bros']
-Q1.clean_q1('assets/tweetsNoReTweets.csv', added_stop_words=q3_stop_words)
+clean_tweet_data = Q1.clean_q1('assets/tweetsNoReTweets.csv', added_stop_words=q3_stop_words)
 
 #######************************   QUESTION 4 ******************************############################
 
+x_train, x_test, y_train, y_test = Q2.vectorizeAndGetTestAndTrain(clean_tweet_data)
+Q2.ClassifyUsingNaiveBayes(x_train, x_test, y_train, y_test)
+Q2.ClassifyUsingKNN(x_train, x_test, y_train, y_test)

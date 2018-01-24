@@ -18,9 +18,9 @@ ann_x_train, ann_x_test, ann_y_train, ann_y_test = Q2.vectorizeAndSplitTestTrain
 nb_x_train, nb_x_test, nb_y_train, nb_y_test = Q2.vectorizeAndSplitTestTrain(clean_data, "nb", "train")
 knn_x_train, knn_x_test, knn_y_train, knn_y_test = Q2.vectorizeAndSplitTestTrain(clean_data, "knn", "train")
 
-# Q2.trainNeuralNetwork(ann_x_train, ann_x_test, ann_y_train, ann_y_test)
 Q2.trainUsingKNN(knn_x_train, knn_x_test, knn_y_train, knn_y_test)
 Q2.trainUsingNaiveBayes(nb_x_train, nb_x_test, nb_y_train, nb_y_test)
+# Q2.trainNeuralNetwork(ann_x_train, ann_x_test, ann_y_train, ann_y_test)
 
 
 # Q2.TuneNaiveBayes(clean_data)

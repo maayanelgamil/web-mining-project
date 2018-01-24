@@ -19,21 +19,35 @@ vectorizer = TfidfVectorizer()
 punctuation = list(string.punctuation)
 stop = stopwords.words('english') + punctuation + ['rt', 'via', 'amp', 'get', 'gt', '1', '10', 'click']
 
+# Declare the different models
+knn = KNeighborsClassifier()
+nb = MultinomialNB()
+ann = Sequential()
 
-def vectorizeAndGetTestAndTrain(data):
-    # the Naive Bayes model
+
+def vectorize(data):
     x = vectorizer.fit_transform(data['text_clean'])
     encoder = LabelEncoder()
     y = encoder.fit_transform(data['gender'])
+
+    return x, y
+
+
+def vectorizeAndGetTestAndTrain(data):
+    x, y = vectorize(data)
 
     # split into train and test sets
     # x_train, x_test, y_train, y_test =
     return train_test_split(x, y, test_size=0.1)
 
 
-def ClassifyUsingNaiveBayes(x_train, x_test, y_train, y_test):
-    nb = MultinomialNB()
+def trainUsingNaiveBayes(x_train, x_test, y_train, y_test):
     nb.fit(x_train, y_train)
+    pred = nb.predict(x_test)
+    print("Navie Baies score:", nb.score(x_test, y_test))
+
+
+def predictNaiveBayes(x_test, y_test):
     pred = nb.predict(x_test)
     print("Navie Baies score:", nb.score(x_test, y_test))
 
@@ -59,10 +73,15 @@ def TuneNaiveBayes(data):
 
 
 ########### KNN #####################
-def ClassifyUsingKNN(x_train, x_test, y_train, y_test):
-    knn = KNeighborsClassifier()
+def trainUsingKNN(x_train, x_test, y_train, y_test):
     knn.fit(x_train, y_train)
     pred = knn.predict(x_test)
+
+    print("KNN score:", knn.score(x_test, y_test))
+
+
+def predictKNN(x_test, y_test):
+    knn.predict(x_test)
 
     print("KNN score:", knn.score(x_test, y_test))
 
@@ -89,7 +108,7 @@ def TuneKNN(data):
 
 #######************************  Neural Network ******************************#######
 
-def ClassifyWithNeuralNetwork(x_train, x_test, y_train, y_test):
+def trainNeuralNetwork(x_train, x_test, y_train, y_test):
     max_words = 1000
     batch_size = 32
     epochs = 5
@@ -109,23 +128,35 @@ def ClassifyWithNeuralNetwork(x_train, x_test, y_train, y_test):
     print('y_test shape:', y_test.shape)
 
     print('Building model...')
-    model = Sequential()
-    model.add(Dense(512, input_shape=(47203,)))
-    model.add(Activation('relu'))
-    model.add(Dropout(0.5))
-    model.add(Dense(num_classes))
-    model.add(Activation('softmax'))
+    ann.add(Dense(512, input_shape=(47203,)))
+    ann.add(Activation('relu'))
+    ann.add(Dropout(0.5))
+    ann.add(Dense(num_classes))
+    ann.add(Activation('softmax'))
 
-    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    ann.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-    history = model.fit(x_train, y_train,
-                        batch_size=batch_size,
-                        epochs=epochs,
-                        verbose=1,
-                        validation_split=0.1)
-    score = model.evaluate(x_test, y_test,
-                           batch_size=batch_size, verbose=1)
-    print(model.metrics_names)
+    history = ann.fit(x_train, y_train,
+                      batch_size=batch_size,
+                      epochs=epochs,
+                      verbose=1,
+                      validation_split=0.1)
+    score = ann.evaluate(x_test, y_test,
+                         batch_size=batch_size, verbose=1)
+    print(ann.metrics_names)
+    print(score)
+    print('Test score:', score[0])
+    print('Test accuracy:', score[1])
+
+
+def predictNeuralNetwork(x_test, y_test):
+    num_classes = 2
+    batch_size = 32
+    y_test = keras.utils.to_categorical(y_test, num_classes)
+
+    score = ann.evaluate(x_test, y_test,
+                         batch_size=batch_size, verbose=1)
+    print(ann.metrics_names)
     print(score)
     print('Test score:', score[0])
     print('Test accuracy:', score[1])

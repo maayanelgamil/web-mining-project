@@ -15,7 +15,6 @@ from keras.layers import Dense, Dropout, Activation
 from keras.preprocessing.text import Tokenizer
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-vectorizer = TfidfVectorizer()
 punctuation = list(string.punctuation)
 stop = stopwords.words('english') + punctuation + ['rt', 'via', 'amp', 'get', 'gt', '1', '10', 'click']
 
@@ -24,17 +23,42 @@ knn = KNeighborsClassifier()
 nb = MultinomialNB()
 ann = Sequential()
 
+# Declare the vectorizers
+knnVectorizer = TfidfVectorizer()
+nbVectorizer = TfidfVectorizer()
+annVectorizer = TfidfVectorizer()
 
-def vectorize(data):
-    x = vectorizer.fit_transform(data['text_clean'])
+
+def getVectorizerForModel(model):
+    vectorizer = None
+
+    if "knn" in model:
+        vectorizer = knnVectorizer
+    elif "nb" in model:
+        vectorizer = nbVectorizer
+    elif "ann" in model:
+        vectorizer = annVectorizer
+
+    return vectorizer
+
+
+def vectorize(data, model, mode):
+    x = None
+    vectorizer = getVectorizerForModel(model)
+
+    if "train" in mode:
+        x = vectorizer.fit_transform(data['text_clean'])
+    elif "predict" in mode:
+        x = vectorizer.transform(data['text_clean'])
+
     encoder = LabelEncoder()
     y = encoder.fit_transform(data['gender'])
 
     return x, y
 
 
-def vectorizeAndGetTestAndTrain(data):
-    x, y = vectorize(data)
+def vectorizeAndSplitTestTrain(data, model, mode):
+    x, y = vectorize(data, model, mode)
 
     # split into train and test sets
     # x_train, x_test, y_train, y_test =
@@ -59,7 +83,7 @@ def TuneNaiveBayes(data):
                                                                                             data['gender'],
                                                                                             test_size=0.1)
 
-    nb_clf = Pipeline([('vect', vectorizer), ('clf', MultinomialNB())])
+    nb_clf = Pipeline([('vect', nbVectorizer), ('clf', MultinomialNB())])
     parameters = {'vect__max_df': (0.3, 0.4, 0.5, 0.6, 0.7, 0.75, 1.0),
                   'vect__ngram_range': ((1, 1), (1, 2)),  # unigrams or bigrams
                   'clf__alpha': (0.0001, 0.01, 1.0),
@@ -91,7 +115,7 @@ def TuneKNN(data):
     pipeline_x_train, pipeline_x_test, pipeline_y_train, pipeline_y_test = train_test_split(data['text_clean'],
                                                                                             data['gender'],
                                                                                             test_size=0.1)
-    knn_clf = Pipeline([('vect', vectorizer), ('clf', KNeighborsClassifier())])
+    knn_clf = Pipeline([('vect', knnVectorizer), ('clf', KNeighborsClassifier())])
 
     knn_parameters = {'vect__max_df': (0.3, 0.4, 0.5, 0.6, 0.7, 0.75, 1.0),
                       'vect__ngram_range': ((1, 1), (1, 2)),  # unigrams or bigrams
@@ -156,10 +180,7 @@ def predictNeuralNetwork(x_test, y_test):
 
     score = ann.evaluate(x_test, y_test,
                          batch_size=batch_size, verbose=1)
-    print(ann.metrics_names)
-    print(score)
-    print('Test score:', score[0])
-    print('Test accuracy:', score[1])
+    print('Neural Network score:', score[1])
 
 
 def predictWithBestResult(clean_data, test, added_stop_words=[]):

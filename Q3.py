@@ -36,7 +36,8 @@ def insertTweetsToLists(tweets, given_gender):
             break
 
         # Exclude re-tweets (usually bots & commercial)
-        if (not tweet.retweeted) and ('RT @' not in tweet.text):
+        # Exclude duplicated tweets
+        if (not tweet.retweeted) and ('RT @' not in tweet.text) and tweet.text not in text:
             # Insert tweet to the Data Frame
             userId.append(tweet.user.id_str)
             text.append(tweet.text)
@@ -76,4 +77,4 @@ def PrepareDataFromTwitter():
     df["gender"] = gender
 
     # Write the data frame to CSV file
-    df.to_csv("tweetsNoReTweets.csv", encoding='utf-8')
+    df.to_csv("tweetsNoReTweetsNoDuplicatedTweets.csv", encoding='utf-8')

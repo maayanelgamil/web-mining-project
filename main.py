@@ -5,7 +5,6 @@ import Q4
 #from __future__ import print_function
 import pandas as pd
 import os
-
 os.environ["KERAS_BACKEND"] = "theano"
 import numpy
 
@@ -17,7 +16,10 @@ x_train, x_test, y_train, y_test = Q2.vectorizeAndGetTestAndTrain(clean_data)
 Q2.ClassifyUsingNaiveBayes(x_train, x_test, y_train, y_test)
 Q2.ClassifyUsingKNN(x_train, x_test, y_train, y_test)
 
-Q2.TuneNaiveBayes(clean_data)
+#Q2.TuneNaiveBayes(clean_data)
+Q2.TuneKNN(clean_data)
+
+print("Finished tuning Naive bayes")
 #######************************   QUESTION 3 ******************************############################
 
 # Using the tweets csv file received by Q3.py

@@ -72,6 +72,9 @@ def ClassifyUsingKNN(x_train, x_test, y_train, y_test):
 
 def TuneKNN(data):
     ### TUNE KNN #####
+    pipeline_x_train, pipeline_x_test, pipeline_y_train, pipeline_y_test = train_test_split(data['text_clean'],
+                                                                                            data['gender'],
+                                                                                            test_size=0.1)
     knn_clf = Pipeline([('vect', vectorizer), ('clf', KNeighborsClassifier())])
 
     knn_parameters = {'vect__max_df': (0.3,0.4,0.5,0.6,0.7, 0.75, 1.0),

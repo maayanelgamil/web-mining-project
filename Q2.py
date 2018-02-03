@@ -129,6 +129,36 @@ def TuneKNN(data):
     print('Best score: ', knn_gs.best_score_)
     print('Best params: ', knn_gs.best_params_)
 
+def createModel():
+    model_x = Sequential()
+    print('Building model...')
+    model_x.add(Dense(512, input_shape=(47215,)))
+    model_x.add(Activation('relu'))
+    model_x.add(Dropout(0.5))
+    model_x.add(Dense(2))
+    model_x.add(Activation('softmax'))
+    model_x.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    return model_x
+
+def TuneNeuralNetwork(x_train, y_train):
+    ### TUNE Neural Network #####
+    from keras.wrappers.scikit_learn import KerasClassifier
+
+    print("Start tunint NN")
+    y_train = keras.utils.to_categorical(y_train, 2)
+    print("create keras model")
+    model = KerasClassifier(build_fn=createModel, verbose=0, epochs = 2)
+
+    # define the grid search parameters
+    batch_size = [5, 10, 40, 60, 100]
+    epochs = [5, 10, 50, 100]
+    print("Creating grid")
+    param_grid = dict(batch_size=batch_size, epochs=epochs)
+    grid = GridSearchCV(estimator=model, param_grid=param_grid, n_jobs=1)
+    grid_result = grid.fit(x_train, y_train)
+    # summarize results
+    print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
+    print("Finished neural tuning")
 
 #######************************  Neural Network ******************************#######
 
@@ -152,7 +182,7 @@ def trainNeuralNetwork(x_train, x_test, y_train, y_test):
     print('y_test shape:', y_test.shape)
 
     print('Building model...')
-    ann.add(Dense(512, input_shape=(47203,)))
+    ann.add(Dense(512, input_shape=(47215,)))
     ann.add(Activation('relu'))
     ann.add(Dropout(0.5))
     ann.add(Dense(num_classes))

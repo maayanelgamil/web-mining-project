@@ -2,6 +2,7 @@ import string
 from nltk.corpus import stopwords
 import re
 import pandas as pd
+import matplotlib.pyplot as plt
 
 
 # Define regex consts
@@ -96,14 +97,14 @@ def clean_q1(corpus_path, added_stop_words=None):
     print(Female_Words)
     ts = Female_Words.plot(kind='bar', stacked=True, colormap='OrRd')
     ts.plot()
-    # plt.show()
+    plt.show()
     print(Male_Words)
     ts = Male_Words.plot(kind='bar', stacked=True, colormap='plasma')
     ts.plot()
-    # plt.show()
+    plt.show()
     print("**ALL WORDS**")
     print(All_words)
     ts = All_words.plot(kind='bar', stacked=True, colormap='Paired')
     ts.plot()
-    # plt.show()
+    plt.show()
     return data

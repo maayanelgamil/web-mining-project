@@ -25,6 +25,7 @@ Q2.trainUsingNaiveBayes(nb_x_train, nb_x_test, nb_y_train, nb_y_test)
 
 # Q2.TuneNaiveBayes(clean_data)
 # Q2.TuneKNN(clean_data)
+Q2.TuneNeuralNetwork(ann_x_train, ann_y_train)
 
 print("Finished tuning Naive bayes")
 #######************************   QUESTION 3 ******************************############################

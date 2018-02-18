@@ -1,7 +1,6 @@
 import os
 import string
 from nltk.corpus import stopwords
-
 os.environ["KERAS_BACKEND"] = "theano"
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
@@ -208,31 +207,5 @@ def predictNeuralNetwork(x_test, y_test):
     batch_size = 32
     y_test = keras.utils.to_categorical(y_test, num_classes)
 
-    score = ann.evaluate(x_test, y_test,
-                         batch_size=batch_size, verbose=1)
+    score = ann.evaluate(x_test, y_test,batch_size=batch_size, verbose=1)
     print('Neural Network score:', score[1])
-
-
-def predictWithBestResult(clean_data, test, added_stop_words=[]):
-    # the Naive Bayes model
-    local_vectorizer = TfidfVectorizer(ngram_range=(1, 1), max_df=0.3, stop_words=stop + added_stop_words)
-    clf = MultinomialNB(fit_prior=False, alpha=1)
-
-    x = vectorizer.fit_transform(clean_data['text_clean'])
-    encoder = LabelEncoder()
-    y = encoder.fit_transform(clean_data['gender'])
-
-    # split into train and test sets
-    x_train, y_train, x_test, y_test = train_test_split(x, y, test_size=0.1)
-
-    improved_features_train = local_vectorizer.fit_transform(x_train)
-
-    encoder = LabelEncoder()
-    test_data = clean_data.drop(test['gender'].index, inplace=False)
-    improved_features_test = encoder.transform(test_data)
-
-    clf.fit(improved_features_train, y_train)
-    pred = clf.predict(improved_features_test)
-
-    score = metrics.accuracy_score(test['gender'], pred)
-    print("Score for twitter prediction: " + score)

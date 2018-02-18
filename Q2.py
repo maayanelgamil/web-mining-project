@@ -144,14 +144,14 @@ def TuneNeuralNetwork(x_train, y_train):
     ### TUNE Neural Network #####
     from keras.wrappers.scikit_learn import KerasClassifier
 
-    print("Start tunint NN")
+    print("Start tuning NN")
     y_train = keras.utils.to_categorical(y_train, 2)
     print("create keras model")
     model = KerasClassifier(build_fn=createModel, verbose=0, epochs = 2)
 
     # define the grid search parameters
-    batch_size = [5, 10, 40, 60, 100]
-    epochs = [5, 10, 50, 100]
+    batch_size = [5, 10, 50]
+    epochs = [5, 10, 50]
     print("Creating grid")
     param_grid = dict(batch_size=batch_size, epochs=epochs)
     grid = GridSearchCV(estimator=model, param_grid=param_grid, n_jobs=1)

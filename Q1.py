@@ -95,7 +95,7 @@ def clean_q1(corpus_path, added_stop_words=None):
 
     print("**********FINISHED CLEANING THE TEXT***************")
     print(Female_Words)
-    ts = Female_Words.plot(kind='bar', stacked=True, colormap='OrRd')
+    ts = Female_Words.plot(kind='bar', stacked=True, colormap='hot')
     ts.plot()
     plt.show()
     print(Male_Words)

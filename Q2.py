@@ -13,6 +13,7 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation
 from keras.preprocessing.text import Tokenizer
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn import metrics
 
 punctuation = list(string.punctuation)
 stop = stopwords.words('english') + punctuation + ['rt', 'via', 'amp', 'get', 'gt', '1', '10', 'click']
@@ -58,9 +59,7 @@ def vectorize(data, model, mode):
 
 def vectorizeAndSplitTestTrain(data, model, mode):
     x, y = vectorize(data, model, mode)
-
     # split into train and test sets
-    # x_train, x_test, y_train, y_test =
     return train_test_split(x, y, test_size=0.1)
 
 
@@ -74,6 +73,23 @@ def predictNaiveBayes(x_test, y_test):
     pred = nb.predict(x_test)
     print("Navie Baies score:", nb.score(x_test, y_test))
 
+def predictNaiveBayesAfterTuning(train, test, tweet_stop_words):
+    #Tune vectorizer according to the best parameters from the pipeline
+    vectorizer = TfidfVectorizer(ngram_range=(1, 1), sublinear_tf=True, max_df=0.3, stop_words=stop + tweet_stop_words)
+
+    #Get test data and classification
+    #encoder = LabelEncoder()
+   # test_y = encoder.fit_transform(test['gender'])
+    improved_features_train = vectorizer.fit_transform(train['text_clean'])
+    improved_features_test = vectorizer.transform(test['text_clean'])
+
+    clf = MultinomialNB(fit_prior=False, alpha=1)
+
+    clf.fit(improved_features_train, train['gender'])
+    pred = clf.predict(improved_features_test)
+
+    score = metrics.accuracy_score(test['gender'], pred)
+    print("improved accuracy:   %0.3f" % score)
 
 ### TUNE NAIVE BAYES #############
 def TuneNaiveBayes(data):
